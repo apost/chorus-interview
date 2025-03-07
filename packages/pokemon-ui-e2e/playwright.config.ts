@@ -4,7 +4,7 @@ import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
 
 // For CI, you may want to set BASE_URL to the deployed application.
-const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
+const baseURL = process.env['BASE_URL'] || 'http://localhost:4300';
 
 /**
  * Read environment variables from file.
@@ -23,12 +23,16 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
+  timeout: 3000, // Global timeout for each test
+  expect: {
+    timeout: 500, // Timeout for each expect statement
+  },
   /* Run your local dev server before starting the tests */
   webServer: {
     command: 'pnpm exec nx run pokemon-ui:preview',
     url: 'http://localhost:4300',
     reuseExistingServer: !process.env.CI,
-    cwd: workspaceRoot,
+    cwd: workspaceRoot + '/packages/pokemon-ui',
   },
   projects: [
     {
