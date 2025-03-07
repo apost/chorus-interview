@@ -1,137 +1,76 @@
 # Chorus Interview
 
-## About this Interview
+## Work-in-Progress Status
+This project is a Pokémon Team Builder application, which allows users to select 6 Pokémon from the first 150 Pokémon and submit their selection to the backend. Below is a summary of the progress made so far, based on the commit history:
 
-Welcome to Chorus Engineering's Interview project!
+### Initial Setup and Configuration:
+- [x] Set up the initial project structure and configuration.
+- [x] Get Nx building applications successfully.
+- [x] Run migration scripts to update tooling since repo created 7 months ago.
 
-We're looking for engineers who are experienced, passionate, and obsessed with strong systems and high productivity.
+### Testing and Development Cycle Improvements:
+- [x] Updated configurations to locate the initial UI test.
+- [x] Organized test specifications for simpler maintainability.
+- [x] Enable Nx rebuilds on save for faster dev cycles.
 
-In order to facilitate this, we are providing an interview project that mirrors the technical stack that used
-here at Chorus.
+### Front-End Development:
+- [x] First substantive UI tests: Implemented the initial set of UI tests.
+- [x] Build out front-end stub components to pass existing tests: Created stub components for the front-end to pass the existing tests.
+- [x] Add basic asserts for team view contents: Added basic assertions for the team view contents.
+- [x] Stub out teamSelectionView to pass written tests: Stubbed out the `teamSelectionView` component to pass the written tests.
+- [x] `app.tsx` changes supporting the routes and views: Updated `app.tsx` to support the necessary routes and views.
 
-**You, the interviewee, have the power to decide if this is the technology that you want to work on!**
+### Back-End Development:
+- [x] Create initial data entities: Created the initial data entities for the project.
+- [x] Add the new db entities to the db-config service: Added the new database entities to the database configuration service.
+- [x] Add basic controller and service to handle API requests: Implemented a basic controller and service to handle API requests.
 
-The goal of this interview is to identify strengths through a take home project, followed by
-a 1 hour pairing session that will extend your work by creating features together.
+### Testing and Configuration:
+- [x] Playwright config changes: Updated the Playwright configuration for end-to-end testing.
 
-## Tech Stack
+## Next Steps
+- [ ] Complete the Front-End UI:
+  - [ ] Continue building out the front-end UI to allow users to view the list of Pokémon.
+  - [ ] Select their team.
+  - [ ] Submit their selection.
 
-- React UI
-- Emotion CSS
-- Typescript
-- Node/NestJS Backend
-- NX Monorepo
-- Github Actions CI
-- PostgreSQL Database
-- Docker / Docker Desktop
-
-## Prerequisites
-
-Package Manager: pnpm 8.15.8
-
-Node: 20.14.0 (LTS)
-
-Docker
-
-## Instructions
-
-### Install Preqresuites
-1. [Install nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating)
-
-Use this command to install node and npm comes with it.
-```bash
-nvm install --lts 
-```
-
-2. Install pnpm
-```bash
-npm i -g pnpm@8.15.8
-```
-3. [Install Docker / Docker Desktop](https://www.docker.com/products/docker-desktop/)
-
-
-### Getting and Running the Repository
-
-**The Hiring Manager will send you a link to this repository.**
-
-Clone this repository, and run the commands below to get started.
-
-1. Run `pnpm install`
-2. Run `pm2 start`
-
-> Note: The API and React server will automatically watch for changes.
-
-You can manage start/stop using `pm2`.
-
-Use `pm2 logs` to see the logs from all processes.
-
-Use `pm2 stop all` to stop the servers.
-
-Use `pm2 delete all` to delete the entry from the pm2 process list.
-
-### Connecting to the Database
-Use whatever tool you'd like to connect to the database.
-
-[We recommend DataGrip.](https://www.jetbrains.com/datagrip/)
-
-Here are the connection details below.
-
-- **Database**: pokemon
-- **Username**: admin
-- **Password**: admin
-- **Host**: localhost
-- **Port**: 5432
+- [ ] Enhance Back-End Functionality:
+  - [ ] Expand the back-end functionality to handle the submitted Pokémon team data and integrate with the database.
+  - [ ] Improve Testing Coverage: Add more comprehensive back-end tests to ensure the functionality and reliability of the application.
 
 ## Prompt
 
-Lets make a Pokémon Team builder!
+Let's make a Pokémon Team builder!
 
 We want to create a way to select 6 Pokémon to be on our team.
 
 The UI should allow the user to:
 
-1. View a list of the first 150 Pokémon
-2. Select from the list of Pokémon
+1. View a list of the first 150 Pokémon.
+2. Select from the list of Pokémon.
 3. Submit the Pokémon that we have selected to the backend.
 
 **It does not have to be a beautiful UX experience. We're aiming for functional.**
 
 ### Completion Criteria
 
-Database Requirements
-
-- There should be a Profile table
-- There should be a Pokémon table
+#### Database Requirements
+- There should be a Profile table.
+- There should be a Pokémon table.
 - There should be a relationship between Pokémon and Profiles.
 
-UI Requirements
-
-- Show a list of the first 150 Pokémon
-- Show selectable Profiles
+#### UI Requirements
+- Show a list of the first 150 Pokémon.
+- Show selectable Profiles.
 - Select a profile, and choose up to 6 Pokémon.
 
-API Requirements
-
-- Return pokemon
-- Create Profiles
-- Handle receiving Pokémon related to Profiles
+#### API Requirements
+- Return Pokémon.
+- Create Profiles.
+- Handle receiving Pokémon related to Profiles.
 
 ## Submission Criteria
 
-All of your work should be located in a Github Repo.
+All of your work should be located in a GitHub Repo.
 
 Ensure your repo is public, and submit the URL back to the hiring manager.
-
-### Troubleshooting
-
-> I can't execute pm2!
-
-pm2 is part of the devDependencies, so when you install the dependencies, you should be able to
-execute the binary from node_modules.
-
-Either use `pnpm pm2` or add `node_modules/.bin` to your `PATH`.
-
-> The requirements are confusing. I'm stuck.
-
-Contact the hiring manager, and inform them of the situation. Be specific and clear about your concerns or issues.
-
