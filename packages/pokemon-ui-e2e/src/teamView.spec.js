@@ -12,7 +12,7 @@ test('should have a greeting', async ({ page }) => {
   await expect(greetingLocator).toHaveText(/Team Selection/gi);
 });
 
-test.only('should have a back button', async ({ page }) => {
+test('should have a back button', async ({ page }) => {
   await page.goto('/team/red');
   const backLocator = page.getByTestId('back-button');
   await backLocator.click();
@@ -23,6 +23,6 @@ test('should show selectable pokemon', async ({ page }) => {
   await page.goto('/team/red');
   const bulbasaur = page.getByTestId('pokemon-1');
   await bulbasaur.click();
-  //To-do have something assertable happen after selecting a pokemon
+  //To-do have something more assertable happen after selecting a pokemon
   expect(page.url()).toContain('/team/red');
 });
