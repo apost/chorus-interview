@@ -1,6 +1,10 @@
 {
   "extends": "nx/presets/npm.json",
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "projects": {
+    "pokemon-ui": "packages/pokemon-ui",
+    "pokemon-user-backend": "packages/pokemon-user-backend"
+  },
   "plugins": [
     {
       "plugin": "@nx/vite/plugin",
@@ -29,7 +33,9 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["packages/pokemon-user-backend-e2e/**/*"]
+      "exclude": [
+        "packages/pokemon-user-backend-e2e/**/*"
+      ]
     },
     {
       "plugin": "@nx/webpack/plugin",
@@ -55,6 +61,13 @@
         "style": "@emotion/styled",
         "linter": "eslint"
       }
+    }
+  },
+  "targetDefaults": {
+    "e2e-ci--**/*": {
+      "dependsOn": [
+        "^build"
+      ]
     }
   }
 }

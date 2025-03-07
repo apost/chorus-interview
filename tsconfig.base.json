@@ -7,14 +7,20 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "strict": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@entities/*": [
+        "packages/pokemon-user-backend/src/modules/database/entities/*"
+      ]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
