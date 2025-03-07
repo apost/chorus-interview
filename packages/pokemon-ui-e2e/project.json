@@ -9,7 +9,7 @@
     "e2e": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm exec playwright test"
+        "command": "pnpm exec playwright test --config ./packages/pokemon-ui-e2e/playwright.config.ts"
       }
     }
   }
