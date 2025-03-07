@@ -25,8 +25,8 @@ export default defineConfig({
   },
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'pnpm exec nx serve pokemon-ui',
-    url: 'http://localhost:4200',
+    command: 'pnpm exec nx run pokemon-ui:preview',
+    url: 'http://localhost:4300',
     reuseExistingServer: !process.env.CI,
     cwd: workspaceRoot,
   },
