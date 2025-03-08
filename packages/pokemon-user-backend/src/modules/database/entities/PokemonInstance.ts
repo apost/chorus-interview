@@ -11,7 +11,7 @@ export class PokemonInstance {
     @ManyToOne(() => PokemonPrototype)
     prototype!: PokemonPrototype;
     
-    @ManyToOne(() => Team, team => team.pokemonInstances)
+    @ManyToOne(() => Team, (team) => team.pokemonInstances)
     team!: Team;
 
     @Column({ nullable: true })
