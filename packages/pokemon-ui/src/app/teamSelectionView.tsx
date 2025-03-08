@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 import { PokemonDto } from '@dto/pokemon.dto';
+import { PokemonInstanceDto } from '@dto/pokemonInstance.dto';
+import { TeamDto } from '@dto/team.dto';
 
 const containerStyle = css`
   display: flex;
@@ -51,19 +53,36 @@ const fetchPokemon = async (): Promise<PokemonDto[]> => {
   return response.data;
 };
 
+const fetchTeam = async (profileName: string): Promise<TeamDto> => {
+  const response = await axios.get(`/api/teams/${profileName}`);
+  return response.data;
+}
+
 function TeamSelectionView(){
   const navigate = useNavigate();
   let { team } = useParams();
-  //  let data = useFakeDataLibrary(`/api/v2/teams/${team}`);
 
-  const { data: pokemonList, error, isLoading } = useQuery<PokemonDto[]>({
+  const { data: pokemonList, error: pokemonError, isLoading: pokemonIsLoading } = useQuery<PokemonDto[]>({
     queryKey: ['pokemon'],
     queryFn: fetchPokemon,
   });
 
-  const handlePokemonClick = (profile: string) => {
-    console.log(`Selected pokemon: ${profile}`);
+  const { data: teamList, error: teamError, isLoading: teamIsLoading } = useQuery<TeamDto>({
+    queryKey: ['team', team],
+    queryFn: () => fetchTeam(team || ''),
+  });
+
+  const isLoading = pokemonIsLoading || teamIsLoading;
+  const error = pokemonError || teamError;
+
+  const handlePokemonClick = (name: string) => {
+    console.log(`Selected pokemon: ${name}`);
     // To-Do - Add the selected pokemon to the team
+  };
+
+  const handleTeamClick = (id: number) => {
+    console.log(`Team removing pokemon: ${id}`);
+    // To-Do - Remove the selected pokemon from the team
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -71,11 +90,24 @@ function TeamSelectionView(){
 
   return (
     <>
-        <h1 data-testid="greeting">Team Selection - {team}
+        <h1 data-testid="greeting">Team Selection - {teamList?.profile.username}
         <button data-testid='back-button' css={backButtonStyle} onClick={() => navigate('/')}>
             Back
         </button>
         </h1>
+        <h2 data-testid='team-list'>Team List</h2>
+        <div css={containerStyle} data-testid='team pokemon'>
+          {teamList?.pokemonInstances?.map((pokemonInstance: { id: number, prototype: PokemonDto, nickname: string, captured_at: Date, teamId: number }, index: number) => (
+            <button
+              key={index}
+              data-testid={`pokemon-${pokemonInstance.id}`}
+              css={buttonStyle}
+              onClick={() => handleTeamClick(pokemonInstance.id)}
+            >
+              {pokemonInstance.nickname || pokemonInstance.prototype.name}
+            </button>
+          ))}
+        </div>
         <div css={containerStyle} data-testid='selectable pokemon'>
           {pokemonList?.map((pokemon: { name: string, display_id: number }, index: number) => (
             <button
