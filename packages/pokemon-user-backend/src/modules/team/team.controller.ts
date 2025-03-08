@@ -7,8 +7,8 @@ export class TeamsController {
   constructor(private readonly teamsService: TeamsService) {}
 
   @Get(':profileName')
-  async getTeam(@Param('profileId') profileId: string): Promise<TeamDto> {
-    return this.teamsService.getTeam(profileId);
+  async getTeam(@Param('profileName') profileName: string): Promise<TeamDto> {
+    return this.teamsService.getTeam(profileName);
   }
 
   @Post(':profileId/pokemon')

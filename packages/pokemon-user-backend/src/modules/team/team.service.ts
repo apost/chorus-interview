@@ -24,7 +24,7 @@ export class TeamsService {
     }
 
     const team = await this.teamRepository.findOne({
-      where: { profile: { username: profileName } },
+      where: { profile: { profile_id: profile.profile_id } },
       relations: ['pokemonInstances', 'pokemonInstances.prototype'],
     });
 
