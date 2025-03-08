@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from "typeorm";
 import { PokemonPrototype } from "./PokemonPrototype";
 import { Team } from "./Team";
 
@@ -12,6 +12,7 @@ export class PokemonInstance {
     prototype!: PokemonPrototype;
     
     @ManyToOne(() => Team, (team) => team.pokemonInstances)
+    @JoinColumn({ name: 'team_id' })
     team!: Team;
 
     @Column({ nullable: true })
