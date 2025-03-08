@@ -1,6 +1,6 @@
 import { css } from '@emotion/react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 import { PokemonDto } from '@dto/pokemon.dto';
@@ -58,9 +58,15 @@ const fetchTeam = async (profileName: string): Promise<TeamDto> => {
   return response.data;
 }
 
+const addPokemonToTeam = async ({ profileName, pokemonDisplayId, nickname }: { profileName: string; pokemonDisplayId: number, nickname: string }): Promise<PokemonDto> => {
+  const response = await axios.post(`/api/teams/${profileName}/capture`, { pokemonDisplayId, nickname });
+  return response.data;
+};
+
 function TeamSelectionView(){
   const navigate = useNavigate();
   let { team } = useParams();
+  const queryClient = useQueryClient();
 
   const { data: pokemonList, error: pokemonError, isLoading: pokemonIsLoading } = useQuery<PokemonDto[]>({
     queryKey: ['pokemon'],
@@ -72,12 +78,24 @@ function TeamSelectionView(){
     queryFn: () => fetchTeam(team || ''),
   });
 
+  const capturePokemon = useMutation({
+    mutationFn: addPokemonToTeam,
+    onError: (error) => {
+      console.error('Error adding pokemon to team:', error);
+    },
+    onSuccess: () => {
+      //To-Do enable query keys for invalidation - queryClient.invalidateQueries('team');
+    }
+
+  });
+
   const isLoading = pokemonIsLoading || teamIsLoading;
   const error = pokemonError || teamError;
 
-  const handlePokemonClick = (name: string) => {
-    console.log(`Selected pokemon: ${name}`);
-    // To-Do - Add the selected pokemon to the team
+  const handlePokemonClick = (pokemon: PokemonDto) => {
+    console.log(`Selected pokemon: ${pokemon.name}`);
+    if(!team || !pokemon.display_id) return;
+    capturePokemon.mutate({ profileName: team, pokemonDisplayId: pokemon.display_id, nickname: '' });
   };
 
   const handleTeamClick = (id: number) => {
@@ -109,12 +127,12 @@ function TeamSelectionView(){
           ))}
         </div>
         <div css={containerStyle} data-testid='selectable pokemon'>
-          {pokemonList?.map((pokemon: { name: string, display_id: number }, index: number) => (
+          {pokemonList?.map((pokemon: { name: string, display_id: number, prototype_id: number }, index: number) => (
             <button
               key={index}
               data-testid={`pokemon-${pokemon.display_id}`}
               css={buttonStyle}
-              onClick={() => handlePokemonClick(pokemon.name)}
+              onClick={() => handlePokemonClick(pokemon)}
             >
               {pokemon.name}
             </button>

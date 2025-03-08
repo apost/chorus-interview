@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Body } from '@nestjs/common';
 import { TeamsService } from './team.service';
-import { TeamDto } from '../database/dto'
+import { PokemonDto, TeamDto } from '../database/dto'
 
 @Controller('teams')
 export class TeamsController {
@@ -11,11 +11,12 @@ export class TeamsController {
     return this.teamsService.getTeam(profileName);
   }
 
-  @Post(':profileId/pokemon')
+  @Post(':profileName/capture')
   async addPokemonToTeam(
-    @Param('profileId') profileId: number,
-    @Body('pokemonInstanceId') pokemonInstanceId: number,
+    @Param('profileName') profileName: string,
+    @Body('pokemonDisplayId') pokemonDisplayId: number,
+    @Body('nickname') nickname: string
   ): Promise<TeamDto> {
-    return this.teamsService.addPokemonToTeam(profileId, pokemonInstanceId);
+    return this.teamsService.addPokemonToTeam(profileName, pokemonDisplayId, nickname);
   }
 }

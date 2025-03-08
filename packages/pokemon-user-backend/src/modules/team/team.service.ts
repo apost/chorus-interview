@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Team } from '../database/entities/Team';
 import { Profile } from '../database/entities/Profile';
 import { PokemonInstance } from '../database/entities/PokemonInstance';
-import { TeamDto, ProfileDto, PokemonInstanceDto} from '../database/dto';
+import { TeamDto, ProfileDto, PokemonInstanceDto, PokemonDto} from '../database/dto';
+import { PokemonService } from '../pokemon/pokemon.service';
+import { PokemonPrototype } from '../database/entities/PokemonPrototype';
 
 @Injectable()
 export class TeamsService {
@@ -15,6 +17,8 @@ export class TeamsService {
     private readonly profileRepository: Repository<Profile>,
     @InjectRepository(PokemonInstance)
     private readonly pokemonInstanceRepository: Repository<PokemonInstance>,
+    @InjectRepository(PokemonPrototype)
+    private readonly pokemonPrototypeRepository: Repository<PokemonPrototype>,
   ) {}
 
   async getTeam(profileName: string): Promise<TeamDto> {
@@ -49,17 +53,37 @@ export class TeamsService {
     };
   }
 
-  async addPokemonToTeam(profileId: number, pokemonInstanceId: number): Promise<TeamDto> {
-    const team = await this.getTeam(profileId.toString());
+  async addPokemonToTeam(profileName: string, pokemonDisplayId: number, nickname: string | null): Promise<TeamDto> {
+    const team = await this.getTeam(profileName);
     if (team.pokemonInstances.length >= 6) {
-      throw new BadRequestException('Team cannot have more than 6 Pokémon');
+        throw new BadRequestException('Team cannot have more than 6 Pokémon');
     }
-    const pokemonInstance = await this.pokemonInstanceRepository.findOne(
-        { where: { instance_id: pokemonInstanceId } },
-    );
+
+    if (!team) {
+        throw new NotFoundException(`Team for profile ${profileName} not found`);
+    }
+
+    const pokemonPrototype = await this.pokemonPrototypeRepository.findOne({
+        where: { display_id: pokemonDisplayId },
+    });
+
+    if (!pokemonPrototype) {
+        throw new NotFoundException(`PokemonPrototype with display ID ${pokemonDisplayId} not found`);
+    }
+
+    const pokemonInstance = await this.pokemonInstanceRepository.create({
+        prototype: pokemonPrototype,
+        team: team,
+        //nickname: pokemon.nickname || pokemonPrototype.name,
+        captured_at: new Date(),
+    });
+
     if (!pokemonInstance) {
-      throw new NotFoundException(`PokemonInstance with ID ${pokemonInstanceId} not found`);
+      throw new InternalServerErrorException(`Could not create Pokémon instance for team ${team.team_id}`);
     }
+
+    await this.pokemonInstanceRepository.save(pokemonInstance);
+
     team.pokemonInstances.push({
         id: pokemonInstance.instance_id,
         prototype: pokemonInstance.prototype,
