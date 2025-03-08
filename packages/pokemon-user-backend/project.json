@@ -5,6 +5,22 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/pokemon-user-backend",
+        "main": "packages/pokemon-user-backend/src/main.ts",
+        "tsConfig": "packages/pokemon-user-backend/tsconfig.app.json",
+        "assets": [
+          {
+            "input": "packages/pokemon-user-backend/src/seeds",
+            "glob": "**/*",
+            "output": "seeds"
+          }
+        ]
+      }
+    },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
