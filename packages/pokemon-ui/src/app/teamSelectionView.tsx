@@ -7,9 +7,10 @@ import { PokemonDto } from '@dto/pokemon.dto';
 
 const containerStyle = css`
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
+  padding: 20px;
   background-color: #f0f0f0;
 `;
 
@@ -72,7 +73,7 @@ function TeamSelectionView(){
 
   return (
     <>
-        <h1 data-testid="greeting">Team Selection
+        <h1 data-testid="greeting">Team Selection - {team}
         <button data-testid='back-button' css={backButtonStyle} onClick={() => navigate('/')}>
             Back
         </button>
