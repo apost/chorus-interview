@@ -19,7 +19,8 @@
     "paths": {
       "@entities/*": [
         "packages/pokemon-user-backend/src/modules/database/entities/*"
-      ]
+      ],
+      "@dto/*": ["packages/pokemon-user-backend/src/modules/database/dto/*"],
     }
   },
   "exclude": ["node_modules", "tmp"]
