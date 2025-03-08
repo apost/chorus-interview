@@ -9,6 +9,7 @@ export class PokemonInstance {
     instance_id!: number;
 
     @ManyToOne(() => PokemonPrototype)
+    @JoinColumn({ name: 'prototype_id' })
     prototype!: PokemonPrototype;
     
     @ManyToOne(() => Team, (team) => team.pokemonInstances)

@@ -1,11 +1,10 @@
 import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Team } from '../database/entities/Team';
 import { Profile } from '../database/entities/Profile';
 import { PokemonInstance } from '../database/entities/PokemonInstance';
-import { TeamDto, ProfileDto, PokemonInstanceDto, PokemonDto} from '../database/dto';
-import { PokemonService } from '../pokemon/pokemon.service';
+import { PokemonInstanceDto, TeamDto} from '../database/dto';
 import { PokemonPrototype } from '../database/entities/PokemonPrototype';
 
 @Injectable()
@@ -20,6 +19,21 @@ export class TeamsService {
     @InjectRepository(PokemonPrototype)
     private readonly pokemonPrototypeRepository: Repository<PokemonPrototype>,
   ) {}
+
+
+  private toPokemonInstanceDto(pokemonInstance: Partial<PokemonInstance | null> ): PokemonInstanceDto {
+    return {
+        id: pokemonInstance?.instance_id || -1,
+        prototype: {
+            display_id: pokemonInstance?.prototype?.display_id || -1,
+            name: pokemonInstance?.prototype?.name || 'MissingNo.',
+            prototype_id: pokemonInstance?.prototype?.prototype_id || -1,
+        },
+        nickname: pokemonInstance?.nickname! || 'MissingNo.',
+        captured_at: pokemonInstance?.captured_at || new Date(),
+        teamId: pokemonInstance?.team?.team_id || -1,
+      };
+  }
 
   async getTeam(profileName: string): Promise<TeamDto> {
     const profile = await this.profileRepository.findOne({ where: { username: profileName } });
@@ -43,24 +57,21 @@ export class TeamsService {
         username: profile.username,
         created_at: profile.created_at,
       },
-      pokemonInstances: team.pokemonInstances.map(pokemonInstance => ({
-        id: pokemonInstance.instance_id,
-        prototype: pokemonInstance.prototype,
-        nickname: pokemonInstance.nickname!,
-        captured_at: pokemonInstance.captured_at,
-        teamId: pokemonInstance.team.team_id,
-      })),
+      pokemonInstances: team.pokemonInstances.map(pokemonInstance => this.toPokemonInstanceDto(pokemonInstance)),
     };
   }
 
   async addPokemonToTeam(profileName: string, pokemonDisplayId: number, nickname: string | null): Promise<TeamDto> {
     const team = await this.getTeam(profileName);
-    if (team.pokemonInstances.length >= 6) {
-        throw new BadRequestException('Team cannot have more than 6 Pokémon');
-    }
+
+    console.log('team', team);
 
     if (!team) {
         throw new NotFoundException(`Team for profile ${profileName} not found`);
+    }
+    
+    if (team.pokemonInstances.length >= 6) {
+        throw new BadRequestException('Team cannot have more than 6 Pokémon');
     }
 
     const pokemonPrototype = await this.pokemonPrototypeRepository.findOne({
@@ -74,24 +85,24 @@ export class TeamsService {
     const pokemonInstance = await this.pokemonInstanceRepository.create({
         prototype: pokemonPrototype,
         team: team,
-        //nickname: pokemon.nickname || pokemonPrototype.name,
+        nickname: nickname || pokemonPrototype.name,
         captured_at: new Date(),
     });
+    
+    console.log('pokemonInstance', pokemonInstance);
 
     if (!pokemonInstance) {
       throw new InternalServerErrorException(`Could not create Pokémon instance for team ${team.team_id}`);
     }
 
-    await this.pokemonInstanceRepository.save(pokemonInstance);
+    const savedPokemonInstance = await this.pokemonInstanceRepository.save(pokemonInstance);
 
-    team.pokemonInstances.push({
-        id: pokemonInstance.instance_id,
-        prototype: pokemonInstance.prototype,
-        nickname: pokemonInstance.nickname || pokemonInstance.prototype.name,
-        captured_at: pokemonInstance.captured_at,
-        teamId: team.team_id,
-    });
+    team.pokemonInstances.push(this.toPokemonInstanceDto(pokemonInstance));
     const updatedTeam = await this.teamRepository.save(team);
+
+    // Update the saved PokemonInstance with the updated team
+    savedPokemonInstance.team = updatedTeam;
+    await this.pokemonInstanceRepository.save(savedPokemonInstance);
 
     return {
       team_id: updatedTeam.team_id,
