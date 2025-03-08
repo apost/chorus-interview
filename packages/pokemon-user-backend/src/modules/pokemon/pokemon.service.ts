@@ -5,12 +5,12 @@ import { PokemonPrototype } from '@entities/PokemonPrototype';
 
 @Injectable()
 export class PokemonService {
-    constructor(
-        @InjectRepository(PokemonPrototype)
-        private readonly pokemonRepository: Repository<PokemonPrototype>,
-        ) {}
+    // constructor(
+    //     @InjectRepository(PokemonPrototype)
+    //     private readonly pokemonRepository: Repository<PokemonPrototype>,
+    // ) {}
         
-        async findAll(): Promise<PokemonPrototype[]> {
-        return this.pokemonRepository.find();
-        }
+    async findAll(): Promise<PokemonPrototype[]> {
+        return [] //this.pokemonRepository.find();
+    }
 }

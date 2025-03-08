@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PokemonPrototype } from '@entities/PokemonPrototype';
 import { DbModule } from '../database/db.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,7 +10,6 @@ import { ProfileModule } from '../profile/profile.module';
     DbModule,
     PokemonModule,
     ProfileModule,
-    TypeOrmModule.forFeature([PokemonPrototype])
   ],
   controllers: [AppController],
   providers: [AppService],
