@@ -69,8 +69,6 @@ function TeamSelectionView(){
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading Pokémon</div>;
 
-  console.log('pokemonList - ' + pokemonList);
-
   return (
     <>
         <h1 data-testid="greeting">Team Selection - {team}
