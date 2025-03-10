@@ -1,7 +1,7 @@
 # Chorus Interview
 
 ## Work-in-Progress Status
-This project is a Pokémon Team Builder application, which allows users to select 6 Pokémon from the first 150 Pokémon and submit their selection to the backend. Below is a summary of the progress made so far, based on the commit history:
+This project is a Pokémon Team Builder application, which allows users to select 6 Pokémon from the first 150 Pokémon and submit their selection to the backend. Below is a summary of the progress made so far, expanding on the commit history:
 
 ### Initial Setup and Configuration:
 - [x] Set up the initial project structure and configuration.
@@ -30,12 +30,19 @@ This project is a Pokémon Team Builder application, which allows users to selec
 
 ## Next Steps
 - [ ] Complete the Front-End UI:
-  - [ ] Continue building out the front-end UI to allow users to view the list of Pokémon.
-  - [ ] Select their team.
-  - [ ] Submit their selection.
+  - [x] Continue building out the front-end UI to allow users to view the list of Pokémon.
+  - [x] Select their team.
+  - [x] Select Pokémon to add to their team.
+  - [x] Captured Pokémon are added to the team.
+  - [x] Front-end dynamically invalidates its query cache and refetches the updated team.
+  - [ ] Leverage the response object on the front-end to update the cache without requerying the team.
+  - [ ] Prompt to add an optional nickname for captured Pokémon.
+  - [ ] Show captured Pokémon nicknames.
 
 - [ ] Enhance Back-End Functionality:
-  - [ ] Expand the back-end functionality to handle the submitted Pokémon team data and integrate with the database.
+  - [x] Expand the back-end functionality to handle the submitted Pokémon team data and integrate with the database.
+  - [ ] Expand the back-end functionality to allow dynamic creation of user profiles
+  - [ ] Support removal of pokemon from an existing team (releasing pokemon to the wild)
   - [ ] Improve Testing Coverage: Add more comprehensive back-end tests to ensure the functionality and reliability of the application.
 
 ## Prompt
