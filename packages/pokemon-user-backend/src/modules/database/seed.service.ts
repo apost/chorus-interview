@@ -9,8 +9,13 @@ export class SeedService implements OnModuleInit {
 
   async onModuleInit() {
     Logger.log('🌱 Seeding database');
-    const filePath = path.join(__dirname, '..', '..', '..', 'seeds', 'seed-pokemon.sql');
-    const sql = fs.readFileSync(filePath, 'utf8');
-    await this.dataSource.query(sql);
+    const seedFiles = ['seed-pokemon.sql', 'seed-profiles.sql', 'seed-teams.sql'];
+    for (const file of seedFiles) {
+      const filePath = path.join(__dirname, '..', '..', '..', 'seeds', file);
+      const sql = fs.readFileSync(filePath, 'utf8');
+      await this.dataSource.query(sql);
+      Logger.log(`🌱 Seeded ${file}`);
+    }
+    Logger.log('🌱 Database seeded');
   }
 }
