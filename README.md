@@ -19,6 +19,16 @@ This project is a Pokémon Team Builder application, which allows users to selec
 - [x] Add basic asserts for team view contents: Added basic assertions for the team view contents.
 - [x] Stub out teamSelectionView to pass written tests: Stubbed out the `teamSelectionView` component to pass the written tests.
 - [x] `app.tsx` changes supporting the routes and views: Updated `app.tsx` to support the necessary routes and views.
+- [x] Allow users to view the list of Pokémon.
+- [x] Select Pokémon to add to their team.
+- [x] Captured Pokémon are added to the team.
+- [x] Front-end dynamically invalidates its query cache and refetches the updated team.
+- [x] Allow users to remove pokemon from their team
+- [x] Allow users to create new profiles
+  - [x] Provide form for submitting user-entered profile names
+  - [x] Prevent creation of duplicate usernames
+  - [x] Show front-end error message when user creation fails
+  - [x] Clear error messaging based on continued user interactions with form
 
 ### Back-End Development:
 - [x] Create initial data entities: Created the initial data entities for the project.
@@ -30,19 +40,14 @@ This project is a Pokémon Team Builder application, which allows users to selec
 
 ## Next Steps
 - [ ] Complete the Front-End UI:
-  - [x] Continue building out the front-end UI to allow users to view the list of Pokémon.
-  - [x] Select their team.
-  - [x] Select Pokémon to add to their team.
-  - [x] Captured Pokémon are added to the team.
-  - [x] Front-end dynamically invalidates its query cache and refetches the updated team.
   - [ ] Leverage the response object on the front-end to update the cache without requerying the team.
   - [ ] Prompt to add an optional nickname for captured Pokémon.
   - [ ] Show captured Pokémon nicknames.
 
 - [ ] Enhance Back-End Functionality:
   - [x] Expand the back-end functionality to handle the submitted Pokémon team data and integrate with the database.
-  - [ ] Expand the back-end functionality to allow dynamic creation of user profiles
-  - [ ] Support removal of pokemon from an existing team (releasing pokemon to the wild)
+  - [x] Expand the back-end functionality to allow dynamic creation of user profiles
+  - [x] Support removal of pokemon from an existing team (releasing pokemon to the wild)
   - [ ] Improve Testing Coverage: Add more comprehensive back-end tests to ensure the functionality and reliability of the application.
 
 ## Prompt
@@ -62,19 +67,19 @@ The UI should allow the user to:
 ### Completion Criteria
 
 #### Database Requirements
-- There should be a Profile table.
-- There should be a Pokémon table.
-- There should be a relationship between Pokémon and Profiles.
+  - [x] There should be a Profile table.
+  - [x] There should be a Pokémon table.
+  - [x] There should be a relationship between Pokémon and Profiles.
 
 #### UI Requirements
-- Show a list of the first 150 Pokémon.
-- Show selectable Profiles.
-- Select a profile, and choose up to 6 Pokémon.
+  - [x] Show a list of the first 150 Pokémon.
+  - [x] Show selectable Profiles.
+  - [x] Select a profile, and choose up to 6 Pokémon.
 
 #### API Requirements
-- Return Pokémon.
-- Create Profiles.
-- Handle receiving Pokémon related to Profiles.
+  - [x] Return Pokémon.
+  - [x] Create Profiles.
+  - [x] Handle receiving Pokémon related to Profiles.
 
 ## Submission Criteria
 
