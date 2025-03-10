@@ -133,7 +133,7 @@ function TeamSelectionView() {
     onSuccess: () => {
       setErrorMessage('');
       queryClient.invalidateQueries({
-        queryKey: ['team', team],
+        queryKey: ['team'],
       });
     }
   });
