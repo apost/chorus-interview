@@ -12,7 +12,7 @@ export class PokemonInstance {
     @JoinColumn({ name: 'prototype_id' })
     prototype!: PokemonPrototype;
     
-    @ManyToOne(() => Team, (team) => team.pokemonInstances)
+    @ManyToOne(() => Team, (team) => team.pokemonInstances, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'team_id' })
     team!: Team;
 
