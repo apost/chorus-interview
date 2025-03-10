@@ -84,7 +84,9 @@ function TeamSelectionView(){
       console.error('Error adding pokemon to team:', error);
     },
     onSuccess: () => {
-      //To-Do enable query keys for invalidation - queryClient.invalidateQueries('team');
+      queryClient.invalidateQueries({
+        queryKey: ['team', team],
+      });
     }
 
   });
