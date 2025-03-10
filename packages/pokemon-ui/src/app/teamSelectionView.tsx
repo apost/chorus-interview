@@ -74,6 +74,34 @@ const errorStyle = css`
   font-weight: bold;
 `;
 
+const emptyTeamMessage = css`
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+`;
+
+const modalStyle = css`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  z-index: 1000;
+`;
+
+const overlayStyle = css`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+`;
+
 const fetchPokemon = async (): Promise<PokemonDto[]> => {
   const response = await axios.get('/api/pokemon');
   return response.data;
@@ -99,6 +127,35 @@ function TeamSelectionView() {
   const queryClient = useQueryClient();
 
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [selectedPokemon, setSelectedPokemon] = useState<PokemonDto | null>(null);
+  const [nickname, setNickname] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const handleSelectPokemon = (pokemon: PokemonDto) => {
+    setSelectedPokemon(pokemon);
+    setIsModalOpen(true);
+  }
+
+  const handleModalSubmit = () => {
+    if (!team || !selectedPokemon?.display_id || !teamName) {
+      setErrorMessage('Error selecting pokemon');
+      return;
+    }
+    if ((team?.pokemonInstances?.length ?? 0) >= 6) {
+      setErrorMessage('Team is full');
+      return;
+    }
+    if (selectedPokemon) {
+      capturePokemon.mutate({ profileName: teamName, pokemonDisplayId: selectedPokemon.display_id, nickname});
+      setIsModalOpen(false);
+      setNickname('');
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setNickname('');
+  };
 
   const { data: pokemonList, error: pokemonError, isLoading: pokemonIsLoading } = useQuery<PokemonDto[]>({
     queryKey: ['pokemon'],
@@ -143,21 +200,13 @@ function TeamSelectionView() {
 
   const handlePokemonClick = (pokemon: PokemonDto) => {
     console.log(`Selected pokémon: ${pokemon.name}`);
-    if (!team || !pokemon.display_id || !teamName){
-      setErrorMessage('Error adding pokemon to team');
-      return;
-    }
-    if((team?.pokemonInstances?.length ?? 0) >= 6) {
-      setErrorMessage('Team is full');
-      return;
-    }
-    capturePokemon.mutate({ profileName: teamName, pokemonDisplayId: pokemon.display_id, nickname: '' });
+    handleSelectPokemon(pokemon);
   };
 
   const handleTeamClick = (dto: PokemonInstanceDto) => {
     console.log(`Team removing pokémon: ${dto.nickname || dto.prototype.name}`);
 
-    if (!team || !dto.id || !teamName){
+    if (!team || !dto.id || !teamName) {
       setErrorMessage('Error releasing pokemon from team');
       return;
     }
@@ -179,6 +228,7 @@ function TeamSelectionView() {
       <div css={sectionStyle}>
         <h2 data-testid='team-list'>Team List</h2>
         <div css={containerStyle} data-testid='team pokemon'>
+          {team?.pokemonInstances?.length === 0 && <div css={emptyTeamMessage}>No Pokémon in team</div>}
           {team?.pokemonInstances?.map((pokemonInstance: { id: number, prototype: PokemonDto, nickname: string, captured_at: Date, teamId: number }, index: number) => (
             <button
               key={index}
@@ -207,6 +257,27 @@ function TeamSelectionView() {
             </button>
           ))}
         </div>
+
+        {isModalOpen && (
+          <>
+            <div css={overlayStyle} onClick={handleModalClose}></div>
+            <div css={modalStyle}>
+              <h2>Enter a Nickname</h2>
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="Enter nickname"
+              />
+              <button css={buttonStyle} onClick={handleModalSubmit}>
+                Submit
+              </button>
+              <button css={buttonStyle} onClick={handleModalClose}>
+                Cancel
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
