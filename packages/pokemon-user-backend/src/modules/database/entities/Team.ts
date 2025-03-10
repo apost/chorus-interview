@@ -8,8 +8,8 @@ export class Team {
     @PrimaryGeneratedColumn()
     team_id!: number;
 
-    @OneToOne(() => Profile)
-    @JoinColumn()
+    @OneToOne(() => Profile, (profile) => profile.team, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'profile_id' })
     profile!: Profile;
 
     @OneToMany(() => PokemonInstance, (pokemonInstance) => pokemonInstance.team)

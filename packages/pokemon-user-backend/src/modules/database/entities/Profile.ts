@@ -12,6 +12,6 @@ export class Profile {
     @CreateDateColumn()
     created_at!: Date;
 
-    @OneToOne(() => Team, team => team.profile)
+    @OneToOne(() => Team, team => team.profile, { cascade: true })
     team!: Team;
 }
