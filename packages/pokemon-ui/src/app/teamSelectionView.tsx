@@ -6,6 +6,7 @@ import axios from 'axios';
 import { PokemonDto } from '@dto/pokemon.dto';
 import { PokemonInstanceDto } from '@dto/pokemonInstance.dto';
 import { TeamDto } from '@dto/team.dto';
+import { useState } from 'react';
 
 const headingStyle = css`
   text-align: center;
@@ -65,6 +66,14 @@ const backButtonStyle = css`
   }
 `;
 
+const errorStyle = css`
+  color: red;
+  margin: 10px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+`;
+
 const fetchPokemon = async (): Promise<PokemonDto[]> => {
   const response = await axios.get('/api/pokemon');
   return response.data;
@@ -86,27 +95,31 @@ const removePokemonFromTeam = async ({ profileName, pokemonInstanceId }: { profi
 
 function TeamSelectionView() {
   const navigate = useNavigate();
-  let { team } = useParams();
+  let { teamName } = useParams();
   const queryClient = useQueryClient();
+
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const { data: pokemonList, error: pokemonError, isLoading: pokemonIsLoading } = useQuery<PokemonDto[]>({
     queryKey: ['pokemon'],
     queryFn: fetchPokemon,
   });
 
-  const { data: teamList, error: teamError, isLoading: teamIsLoading } = useQuery<TeamDto>({
-    queryKey: ['team', team],
-    queryFn: () => fetchTeam(team || ''),
+  const { data: team, error: teamError, isLoading: teamIsLoading } = useQuery<TeamDto>({
+    queryKey: ['team', teamName],
+    queryFn: () => fetchTeam(teamName || ''),
   });
 
   const capturePokemon = useMutation({
     mutationFn: addPokemonToTeam,
     onError: (error) => {
       console.error('Error adding pokemon to team:', error);
+      setErrorMessage('Error adding pokemon to team');
     },
     onSuccess: () => {
+      setErrorMessage('');
       queryClient.invalidateQueries({
-        queryKey: ['team', team],
+        queryKey: ['team'],
       });
     }
   });
@@ -115,8 +128,10 @@ function TeamSelectionView() {
     mutationFn: removePokemonFromTeam,
     onError: (error) => {
       console.error('Error releasing pokemon from team:', error);
+      setErrorMessage('Error releasing pokemon from team');
     },
     onSuccess: () => {
+      setErrorMessage('');
       queryClient.invalidateQueries({
         queryKey: ['team', team],
       });
@@ -128,13 +143,26 @@ function TeamSelectionView() {
 
   const handlePokemonClick = (pokemon: PokemonDto) => {
     console.log(`Selected pokémon: ${pokemon.name}`);
-    if (!team || !pokemon.display_id) return;
-    capturePokemon.mutate({ profileName: team, pokemonDisplayId: pokemon.display_id, nickname: '' });
+    if (!team || !pokemon.display_id || !teamName){
+      setErrorMessage('Error adding pokemon to team');
+      return;
+    }
+    if((team?.pokemonInstances?.length ?? 0) >= 6) {
+      setErrorMessage('Team is full');
+      return;
+    }
+    capturePokemon.mutate({ profileName: teamName, pokemonDisplayId: pokemon.display_id, nickname: '' });
   };
 
   const handleTeamClick = (dto: PokemonInstanceDto) => {
     console.log(`Team removing pokémon: ${dto.nickname || dto.prototype.name}`);
-    releasePokemon.mutate({ profileName: team || '', pokemonInstanceId: dto.id });
+
+    if (!team || !dto.id || !teamName){
+      setErrorMessage('Error releasing pokemon from team');
+      return;
+    }
+
+    releasePokemon.mutate({ profileName: teamName, pokemonInstanceId: dto.id });
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -142,7 +170,7 @@ function TeamSelectionView() {
 
   return (
     <>
-      <h1 css={headingStyle} data-testid="greeting">Team Selection - {teamList?.profile.username}
+      <h1 css={headingStyle} data-testid="greeting">Team Selection - {team?.profile.username}
         <button data-testid='back-button' css={backButtonStyle} onClick={() => navigate('/')}>
           Back
         </button>
@@ -151,7 +179,7 @@ function TeamSelectionView() {
       <div css={sectionStyle}>
         <h2 data-testid='team-list'>Team List</h2>
         <div css={containerStyle} data-testid='team pokemon'>
-          {teamList?.pokemonInstances?.map((pokemonInstance: { id: number, prototype: PokemonDto, nickname: string, captured_at: Date, teamId: number }, index: number) => (
+          {team?.pokemonInstances?.map((pokemonInstance: { id: number, prototype: PokemonDto, nickname: string, captured_at: Date, teamId: number }, index: number) => (
             <button
               key={index}
               data-testid={`pokemon-${pokemonInstance.id}`}
@@ -162,6 +190,7 @@ function TeamSelectionView() {
             </button>
           ))}
         </div>
+        {errorMessage && <div css={errorStyle}>{errorMessage}</div>}
       </div>
       {/* Selectable Pokémon Section */}
       <div css={sectionStyle}>

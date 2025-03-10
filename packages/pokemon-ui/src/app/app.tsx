@@ -9,7 +9,7 @@ export function App() {
     <Router>
       <Routes>
         <Route path="/" element={<ProfileSelectionView />} />
-        <Route path="/team/:team" element={<TeamSelectionView />} />
+        <Route path="/team/:teamName" element={<TeamSelectionView />} />
       </Routes>
     </Router>
   );
