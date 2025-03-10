@@ -80,6 +80,10 @@ const addPokemonToTeam = async ({ profileName, pokemonDisplayId, nickname }: { p
   return response.data;
 };
 
+const removePokemonFromTeam = async ({ profileName, pokemonInstanceId }: { profileName: string; pokemonInstanceId: number }): Promise<void> => {
+  await axios.delete(`/api/teams/${profileName}/release/${pokemonInstanceId}`);
+};
+
 function TeamSelectionView() {
   const navigate = useNavigate();
   let { team } = useParams();
@@ -105,7 +109,18 @@ function TeamSelectionView() {
         queryKey: ['team', team],
       });
     }
+  });
 
+  const releasePokemon = useMutation({
+    mutationFn: removePokemonFromTeam,
+    onError: (error) => {
+      console.error('Error releasing pokemon from team:', error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['team', team],
+      });
+    }
   });
 
   const isLoading = pokemonIsLoading || teamIsLoading;
@@ -117,9 +132,9 @@ function TeamSelectionView() {
     capturePokemon.mutate({ profileName: team, pokemonDisplayId: pokemon.display_id, nickname: '' });
   };
 
-  const handleTeamClick = (id: number) => {
-    console.log(`Team removing pokémon: ${id}`);
-    // To-Do - Remove the selected pokemon from the team
+  const handleTeamClick = (dto: PokemonInstanceDto) => {
+    console.log(`Team removing pokémon: ${dto.nickname || dto.prototype.name}`);
+    releasePokemon.mutate({ profileName: team || '', pokemonInstanceId: dto.id });
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -141,7 +156,7 @@ function TeamSelectionView() {
               key={index}
               data-testid={`pokemon-${pokemonInstance.id}`}
               css={buttonStyle}
-              onClick={() => handleTeamClick(pokemonInstance.id)}
+              onClick={() => handleTeamClick(pokemonInstance)}
             >
               {pokemonInstance.nickname || pokemonInstance.prototype.name}
             </button>

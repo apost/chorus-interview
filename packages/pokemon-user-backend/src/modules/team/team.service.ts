@@ -82,7 +82,7 @@ export class TeamsService {
         };
     }
 
-    async addPokemonToTeam(profileName: string, pokemonDisplayId: number, nickname: string | null): Promise<TeamDto> {
+    async capturePokemon(profileName: string, pokemonDisplayId: number, nickname: string | null): Promise<TeamDto> {
         const { team, profile } = await this.findTeamByProfileName(profileName);
 
         console.log('team', team);
@@ -137,6 +137,40 @@ export class TeamsService {
                 created_at: profile.created_at,
             },
             pokemonInstances: team.pokemonInstances.map(this.toPokemonInstanceDto),
+        };
+    }
+
+    async releasePokemon(profileName: string, pokemonInstanceId: number): Promise<TeamDto> {
+        const { team, profile } = await this.findTeamByProfileName(profileName);
+
+        const pokemonInstance = await this.pokemonInstanceRepository.findOne({
+            where: { instance_id: pokemonInstanceId, team: { team_id: team.team_id } },
+        });
+
+        if (!pokemonInstance) {
+            throw new NotFoundException(`PokemonInstance with ID ${pokemonInstanceId} not found in team ${team.team_id}`);
+        }
+
+        await this.pokemonInstanceRepository.remove(pokemonInstance);
+
+        // Reload the team to ensure the relationship is updated
+        const updatedTeam = await this.teamRepository.findOne({
+            where: { team_id: team.team_id },
+            relations: ['pokemonInstances', 'pokemonInstances.prototype', 'profile'],
+        });
+
+        if (!updatedTeam) {
+            throw new InternalServerErrorException(`Could not fetch updated team ${team.team_id}`);
+        }
+
+        return {
+            team_id: updatedTeam.team_id,
+            profile: {
+                profile_id: updatedTeam.profile.profile_id,
+                username: updatedTeam.profile.username,
+                created_at: updatedTeam.profile.created_at,
+            },
+            pokemonInstances: updatedTeam.pokemonInstances.map(this.toPokemonInstanceDto),
         };
     }
 

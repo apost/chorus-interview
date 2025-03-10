@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Delete } from '@nestjs/common';
 import { TeamsService } from './team.service';
 import { PokemonDto, TeamDto } from '../database/dto'
 
@@ -17,6 +17,14 @@ export class TeamsController {
     @Body('pokemonDisplayId') pokemonDisplayId: number,
     @Body('nickname') nickname: string
   ): Promise<TeamDto> {
-    return this.teamsService.addPokemonToTeam(profileName, pokemonDisplayId, nickname);
+    return this.teamsService.capturePokemon(profileName, pokemonDisplayId, nickname);
   }
+
+  @Delete(':profileName/release/:pokemonInstanceId')
+    async removePokemonFromTeam(
+        @Param('profileName') profileName: string,
+        @Param('pokemonInstanceId') pokemonInstanceId: number
+    ): Promise<TeamDto> {
+        return this.teamsService.releasePokemon(profileName, pokemonInstanceId);
+    }
 }
