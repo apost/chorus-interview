@@ -7,6 +7,22 @@ import { PokemonDto } from '@dto/pokemon.dto';
 import { PokemonInstanceDto } from '@dto/pokemonInstance.dto';
 import { TeamDto } from '@dto/team.dto';
 
+const headingStyle = css`
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+`;
+
+const sectionStyle = css`
+  margin-bottom: 30px;
+  padding: 15px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+`;
+
 const containerStyle = css`
   display: flex;
   flex-wrap: wrap;
@@ -27,7 +43,8 @@ const buttonStyle = css`
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #e0e0e0;
+    background-color: #ddd;
+    border-color: #333;
   }
 `;
 
@@ -63,7 +80,7 @@ const addPokemonToTeam = async ({ profileName, pokemonDisplayId, nickname }: { p
   return response.data;
 };
 
-function TeamSelectionView(){
+function TeamSelectionView() {
   const navigate = useNavigate();
   let { team } = useParams();
   const queryClient = useQueryClient();
@@ -95,13 +112,13 @@ function TeamSelectionView(){
   const error = pokemonError || teamError;
 
   const handlePokemonClick = (pokemon: PokemonDto) => {
-    console.log(`Selected pokemon: ${pokemon.name}`);
-    if(!team || !pokemon.display_id) return;
+    console.log(`Selected pokémon: ${pokemon.name}`);
+    if (!team || !pokemon.display_id) return;
     capturePokemon.mutate({ profileName: team, pokemonDisplayId: pokemon.display_id, nickname: '' });
   };
 
   const handleTeamClick = (id: number) => {
-    console.log(`Team removing pokemon: ${id}`);
+    console.log(`Team removing pokémon: ${id}`);
     // To-Do - Remove the selected pokemon from the team
   };
 
@@ -110,11 +127,13 @@ function TeamSelectionView(){
 
   return (
     <>
-        <h1 data-testid="greeting">Team Selection - {teamList?.profile.username}
+      <h1 css={headingStyle} data-testid="greeting">Team Selection - {teamList?.profile.username}
         <button data-testid='back-button' css={backButtonStyle} onClick={() => navigate('/')}>
-            Back
+          Back
         </button>
-        </h1>
+      </h1>
+      {/* Team List Section */}
+      <div css={sectionStyle}>
         <h2 data-testid='team-list'>Team List</h2>
         <div css={containerStyle} data-testid='team pokemon'>
           {teamList?.pokemonInstances?.map((pokemonInstance: { id: number, prototype: PokemonDto, nickname: string, captured_at: Date, teamId: number }, index: number) => (
@@ -128,6 +147,10 @@ function TeamSelectionView(){
             </button>
           ))}
         </div>
+      </div>
+      {/* Selectable Pokémon Section */}
+      <div css={sectionStyle}>
+        <h2 data-testid='team-list'>Capturable Pokémon</h2>
         <div css={containerStyle} data-testid='selectable pokemon'>
           {pokemonList?.map((pokemon: { name: string, display_id: number, prototype_id: number }, index: number) => (
             <button
@@ -140,6 +163,7 @@ function TeamSelectionView(){
             </button>
           ))}
         </div>
+      </div>
     </>
   );
 };
