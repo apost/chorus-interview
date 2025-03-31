@@ -11,26 +11,45 @@ import { useState } from 'react';
 const headingStyle = css`
   text-align: center;
   font-size: 24px;
+  line-height: 48px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 15px;
-`;
-
-const sectionStyle = css`
-  margin-bottom: 30px;
-  padding: 15px;
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 0px;
 `;
 
 const containerStyle = css`
   display: flex;
-  flex-wrap: wrap;
+  wrap: nowrap;
+  height: calc(100vh - 48px);
+  align-items: stretch;
+  align-content: stretch;
+  margin: 0px;
+`;
+
+const teamBarStyle = css`
+  flex: 0 1 300px;
+  background: #ddd;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const pokemonGridContainerStyle = css`
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const gridStyle = css`
+  max-width: 90%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 10px;
-  justify-content: center;
-  padding: 20px;
-  background-color: #f0f0f0;
+  overflow-y: auto;
+  padding: 15px;
 `;
 
 const buttonStyle = css`
@@ -38,10 +57,13 @@ const buttonStyle = css`
   border: 2px solid #000;
   border-radius: 8px;
   padding: 20px;
-  margin: 10px;
   font-size: 18px;
   cursor: pointer;
   transition: background-color 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 
   &:hover {
     background-color: #ddd;
@@ -102,6 +124,11 @@ const overlayStyle = css`
   z-index: 999;
 `;
 
+const fetchSprite = async (id: number): Promise<string> => {
+  const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+  return response.data.sprites.front_default;
+}
+
 const fetchPokemon = async (): Promise<PokemonDto[]> => {
   const response = await axios.get('/api/pokemon');
   return response.data;
@@ -109,8 +136,19 @@ const fetchPokemon = async (): Promise<PokemonDto[]> => {
 
 const fetchTeam = async (profileName: string): Promise<TeamDto> => {
   const response = await axios.get(`/api/teams/${profileName}`);
-  return response.data;
+  return addSpritesToTeam(response.data);
 }
+
+const addSpritesToTeam = async (team: TeamDto): Promise<TeamDto> => {
+  const updatedTeam = { ...team };
+  for (const pokemonInstance of updatedTeam.pokemonInstances) {
+    const sprite = await fetchSprite(pokemonInstance.prototype.display_id);
+    pokemonInstance.spriteUrl = sprite;
+  }
+  return updatedTeam;
+}
+
+
 
 const addPokemonToTeam = async ({ profileName, pokemonDisplayId, nickname }: { profileName: string; pokemonDisplayId: number, nickname: string }): Promise<PokemonDto> => {
   const response = await axios.post(`/api/teams/${profileName}/capture`, { pokemonDisplayId, nickname });
@@ -146,7 +184,7 @@ function TeamSelectionView() {
       return;
     }
     if (selectedPokemon) {
-      capturePokemon.mutate({ profileName: teamName, pokemonDisplayId: selectedPokemon.display_id, nickname});
+      capturePokemon.mutate({ profileName: teamName, pokemonDisplayId: selectedPokemon.display_id, nickname });
       setIsModalOpen(false);
       setNickname('');
     }
@@ -225,11 +263,12 @@ function TeamSelectionView() {
         </button>
       </h1>
       {/* Team List Section */}
-      <div css={sectionStyle}>
-        <h2 data-testid='team-list'>Team List</h2>
-        <div css={containerStyle} data-testid='team pokemon'>
+      <div css={containerStyle}>
+        <div css={teamBarStyle}>
+          <h2 data-testid='team-list'>Team List</h2>
+
           {team?.pokemonInstances?.length === 0 && <div css={emptyTeamMessage}>No Pokémon in team</div>}
-          {team?.pokemonInstances?.map((pokemonInstance: { id: number, prototype: PokemonDto, nickname: string, captured_at: Date, teamId: number }, index: number) => (
+          {team?.pokemonInstances?.map((pokemonInstance: { id: number, prototype: PokemonDto, nickname: string, captured_at: Date, teamId: number, spriteUrl?: string }, index: number) => (
             <button
               key={index}
               data-testid={`pokemon-${pokemonInstance.id}`}
@@ -237,47 +276,48 @@ function TeamSelectionView() {
               onClick={() => handleTeamClick(pokemonInstance)}
             >
               {pokemonInstance.nickname || pokemonInstance.prototype.name}
+              <img src={pokemonInstance.spriteUrl} alt={pokemonInstance.prototype.name} />
             </button>
           ))}
         </div>
         {errorMessage && <div css={errorStyle}>{errorMessage}</div>}
-      </div>
-      {/* Selectable Pokémon Section */}
-      <div css={sectionStyle}>
-        <h2 data-testid='team-list'>Capturable Pokémon</h2>
-        <div css={containerStyle} data-testid='selectable pokemon'>
-          {pokemonList?.map((pokemon: { name: string, display_id: number, prototype_id: number }, index: number) => (
-            <button
-              key={index}
-              data-testid={`pokemon-${pokemon.display_id}`}
-              css={buttonStyle}
-              onClick={() => handlePokemonClick(pokemon)}
-            >
-              {pokemon.name}
-            </button>
-          ))}
-        </div>
 
-        {isModalOpen && (
-          <>
-            <div css={overlayStyle} onClick={handleModalClose}></div>
-            <div css={modalStyle}>
-              <h2>Enter a Nickname</h2>
-              <input
-                type="text"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                placeholder="Enter nickname"
-              />
-              <button css={buttonStyle} onClick={handleModalSubmit}>
-                Submit
+        {/* Selectable Pokémon Section */}
+        <div css={pokemonGridContainerStyle}>
+          <h2 data-testid='team-list'>Capturable Pokémon</h2>
+          <div css={gridStyle} data-testid='selectable pokemon'>
+            {pokemonList?.map((pokemon: { name: string, display_id: number, prototype_id: number }, index: number) => (
+              <button
+                key={index}
+                data-testid={`pokemon-${pokemon.display_id}`}
+                css={buttonStyle}
+                onClick={() => handlePokemonClick(pokemon)}
+              >
+                {pokemon.name}
               </button>
-              <button css={buttonStyle} onClick={handleModalClose}>
-                Cancel
-              </button>
-            </div>
-          </>
-        )}
+            ))}
+            {isModalOpen && (
+              <>
+                <div css={overlayStyle} onClick={handleModalClose}></div>
+                <div css={modalStyle}>
+                  <h2>Enter a Nickname</h2>
+                  <input
+                    type="text"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    placeholder="Enter nickname"
+                  />
+                  <button css={buttonStyle} onClick={handleModalSubmit}>
+                    Submit
+                  </button>
+                  <button css={buttonStyle} onClick={handleModalClose}>
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );

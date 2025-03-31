@@ -7,4 +7,5 @@ export class PokemonInstanceDto {
   nickname!: string;
   captured_at!: Date;
   teamId!: number;
+  spriteUrl?: string;
 }
